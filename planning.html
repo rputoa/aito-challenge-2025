@@ -5,279 +5,276 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planning du Tournoi de Tennis de Table</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Calm Competition -->
-    <!-- Application Structure Plan: A single-page application using a prominent top navigation toggle to switch between 'Jour 1' and 'Jour 2' content sections. This tabbed approach is the most intuitive way for users to navigate a multi-day event schedule. Each day is presented as a clear, vertical timeline built with HTML/CSS, which is the optimal format for chronological information. This structure was chosen for its simplicity, scannability, and direct mapping to the user's primary goal: understanding the schedule for a specific day. -->
-    <!-- Visualization & Content Choices: Report Info: Daily schedule breakdown -> Goal: Inform/Organize -> Viz/Presentation Method: Key info cards (HTML/Tailwind) for summaries and a vertical timeline (HTML/Tailwind) for the detailed schedule. A small Donut Chart (Chart.js/Canvas) is added to each day's view to visually represent the number of different tournaments. -> Interaction: Toggling between day views. -> Justification: This combination provides at-a-glance summaries and detailed chronological flow, which is ideal for a tournament schedule. The Donut chart adds a minor visual summary without complicating the main goal. CONFIRMATION: NO SVG/Mermaid used. -->
+    <!-- Chosen Palette: Cool Neutrals (Slate/Blue) -->
+    <!-- Application Structure Plan: Conception d'une SPA avec une navigation principale à deux onglets (Jour 1 / Jour 2). Le clic sur un onglet affiche dynamiquement le contenu de la journée correspondante et masque l'autre. Le flux utilisateur est simple : il atterrit sur le Jour 1 (par défaut) et peut basculer vers le Jour 2. Cette structure en onglets est la plus intuitive pour comparer ou consulter deux entités distinctes (les deux jours) sans recharger la page, ce qui est l'objectif principal de la SPA. -->
+    <!-- Visualization & Content Choices: 
+        1. Info: Planning horaire (Échéancier). Goal: Informer du déroulement. Viz: Timeline verticale (HTML/Tailwind). Interaction: Aucune. Justification: Une timeline est visuellement plus facile à lire et à scanner qu'une liste ou un tableau pour un planning. Method: HTML/Tailwind.
+        2. Info: Tableaux du jour (Open, Débutant, etc.). Goal: Résumer les compétitions. Viz: Cartes d'information (HTML/Tailwind Grid). Interaction: Aucune. Justification: Les cartes permettent de grouper logiquement les informations clés (nom, n° de joueurs, vague) de manière moderne et responsive. Method: HTML/Tailwind.
+        3. Info: Format des matchs. Goal: Expliquer les règles. Viz: Liste à puces (HTML <ul>). Interaction: Aucune. Justification: Clarté maximale pour des règles. Method: HTML/Tailwind.
+    -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8f9fa;
+            background-color: #f1f5f9;
         }
         .nav-btn {
             transition: all 0.3s ease;
         }
-        .nav-btn.active {
-            background-color: #1e3a8a;
+        .nav-btn-active {
+            background-color: #2563eb;
             color: white;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
-        .content-section {
-            display: none;
-        }
-        .content-section.active {
-            display: block;
-        }
-        .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -31px;
-            top: 0;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
+        .nav-btn-inactive {
             background-color: white;
-            border: 4px solid #1e3a8a;
-        }
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 300px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 300px;
-            max-height: 300px;
+            color: #374151;
         }
     </style>
 </head>
-<body class="antialiased text-gray-800">
+<body class="antialiased">
 
-    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
-
+    <div class="container mx-auto max-w-7xl p-4 sm:p-8">
+        
         <header class="text-center mb-8">
-            <h1 class="text-4xl md:text-5xl font-bold text-gray-900">Tournoi de Tennis de Table</h1>
-            <p class="text-lg text-gray-600 mt-2">Planning Officiel du Week-end</p>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Planning du Tournoi</h1>
+            <p class="text-lg text-gray-600">Bienvenue au Challenge 2025 !</p>
         </header>
 
-        <nav class="flex justify-center bg-white p-2 rounded-xl shadow-md mb-8 sticky top-4 z-10">
-            <button id="btn-jour1" class="nav-btn active text-lg font-semibold py-3 px-6 rounded-lg w-1/2">
-                Samedi (Compétition)
+        <nav class="flex justify-center mb-10 space-x-4">
+            <button id="btn-jour1" class="nav-btn nav-btn-active text-base md:text-lg font-semibold py-3 px-6 rounded-lg shadow-sm w-1/2 md:w-auto">
+                🗓️ Jour 1 (Samedi)
             </button>
-            <button id="btn-jour2" class="nav-btn text-lg font-semibold py-3 px-6 rounded-lg w-1/2">
-                Dimanche (Convivial)
+            <button id="btn-jour2" class="nav-btn nav-btn-inactive text-base md:text-lg font-semibold py-3 px-6 rounded-lg shadow-sm w-1/2 md:w-auto">
+                ☀️ Jour 2 (Dimanche)
             </button>
         </nav>
 
         <main>
-            <!-- Jour 1 Section -->
-            <section id="content-jour1" class="content-section active">
-                <div class="bg-white p-6 rounded-2xl shadow-lg">
-                    <h2 class="text-3xl font-bold text-center mb-2 text-blue-900">Jour 1 : Journée de Compétition</h2>
-                    <p class="text-center text-gray-600 mb-6">Thème : Performance, Compétition, Intensité</p>
+            <div id="jour1-content">
+                <section class="bg-white p-6 md:p-8 rounded-xl shadow-lg mb-8">
+                    <h2 class="text-2xl font-bold text-blue-700 mb-6">Jour 1 : Journée de Compétition</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 text-center md:text-left">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <div class="text-sm font-semibold text-blue-600 uppercase">Objectif</div>
+                            <div class="text-2xl font-bold text-gray-900">Fin à 17h00</div>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <div class="text-sm font-semibold text-blue-600 uppercase">Format Garanti</div>
+                            <div class="text-xl font-bold text-gray-900">Poules + Principal + Consolante</div>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <div class="text-sm font-semibold text-blue-600 uppercase">Participants (Samedi)</div>
+                            <div class="text-2xl font-bold text-gray-900">56 Joueurs</div>
+                        </div>
+                    </div>
 
-                    <div class="grid md:grid-cols-2 gap-6 mb-8">
-                        <div class="bg-blue-50 p-6 rounded-xl">
-                            <h3 class="font-bold text-xl mb-3 text-blue-800">Informations Clés</h3>
-                            <ul class="space-y-2 text-gray-700">
-                                <li class="flex items-start"><span class="font-bold w-32">Horaires:</span><span>09h00 - 18h00</span></li>
-                                <li class="flex items-start"><span class="font-bold w-32">Format:</span><span>Poules + Tableau Principal</span></li>
-                                <li class="flex items-start"><span class="font-bold w-32">Matchs Poule:</span><span>2 sets gagnants</span></li>
-                                <li class="flex items-start"><span class="font-bold w-32">Matchs Finaux:</span><span>3 sets gagnants (Finale en 4)</span></li>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4">Échéancier Détaillé</h3>
+                            <ol class="relative border-l border-gray-200">                  
+                                <li class="mb-10 ml-6">            
+                                    <span class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -left-3 ring-8 ring-white">
+                                        🔔
+                                    </span>
+                                    <time class="block mb-1 text-sm font-normal leading-none text-gray-500">08:30 - 08:50</time>
+                                    <h4 class="text-lg font-semibold text-gray-900">Pointage Vague 1</h4>
+                                    <p class="text-base font-normal text-gray-600">Open & Débutants</p>
+                                </li>
+                                <li class="mb-10 ml-6">
+                                    <span class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -left-3 ring-8 ring-white">
+                                        🏁
+                                    </span>
+                                    <time class="block mb-1 text-sm font-normal leading-none text-gray-500">09:00</time>
+                                    <h4 class="text-lg font-semibold text-gray-900">Lancement Poules Vague 1</h4>
+                                </li>
+                                <li class="mb-10 ml-6">
+                                    <span class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -left-3 ring-8 ring-white">
+                                        🔔
+                                    </span>
+                                    <time class="block mb-1 text-sm font-normal leading-none text-gray-500">10:00</time>
+                                    <h4 class="text-lg font-semibold text-gray-900">Pointage Vague 2</h4>
+                                    <p class="text-base font-normal text-gray-600">Intermédiaires & Vétérans</p>
+                                </li>
+                                <li class="mb-10 ml-6">
+                                    <span class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -left-3 ring-8 ring-white">
+                                        🏁
+                                    </span>
+                                    <time class="block mb-1 text-sm font-normal leading-none text-gray-500">10:30</time>
+                                    <h4 class="text-lg font-semibold text-gray-900">Lancement Poules Vague 2</h4>
+                                </li>
+                                <li class="mb-10 ml-6">
+                                    <span class="absolute flex items-center justify-center w-6 h-6 bg-yellow-100 rounded-full -left-3 ring-8 ring-white">
+                                        🍽️
+                                    </span>
+                                    <time class="block mb-1 text-sm font-normal leading-none text-gray-500">13:00 - 14:00</time>
+                                    <h4 class="text-lg font-semibold text-gray-900">Pause Déjeuner</h4>
+                                    <p class="text-base font-normal text-gray-600">Toutes les poules sont terminées.</p>
+                                </li>
+                                <li class="mb-10 ml-6">
+                                    <span class="absolute flex items-center justify-center w-6 h-6 bg-green-100 rounded-full -left-3 ring-8 ring-white">
+                                        🏆
+                                    </span>
+                                    <time class="block mb-1 text-sm font-normal leading-none text-gray-500">14:00</time>
+                                    <h4 class="text-lg font-semibold text-gray-900">Phases Finales</h4>
+                                    <p class="text-base font-normal text-gray-600">Lancement des 8 tableaux (Principaux & Consolantes).</p>
+                                </li>
+                                <li class="ml-6">
+                                    <span class="absolute flex items-center justify-center w-6 h-6 bg-green-100 rounded-full -left-3 ring-8 ring-white">
+                                        🏅
+                                    </span>
+                                    <time class="block mb-1 text-sm font-normal leading-none text-gray-500">16:30 - 17:00</time>
+                                    <h4 class="text-lg font-semibold text-gray-900">Finales & Podiums</h4>
+                                    <p class="text-base font-normal text-gray-600">Fin de la journée.</p>
+                                </li>
+                            </ol>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4">Tableaux & Formats</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                                <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                    <div class="font-semibold text-gray-800">Vague 1 (09h00)</div>
+                                    <p class="text-gray-600">Open (18 joueurs)</p>
+                                    <p class="text-gray-600">Débutants (12 joueurs)</p>
+                                    <p class="text-sm text-red-600 font-medium">Conflits : 1 joueur</p>
+                                </div>
+                                <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                    <div class="font-semibold text-gray-800">Vague 2 (10h30)</div>
+                                    <p class="text-gray-600">Intermédiaires (16 joueurs)</p>
+                                    <p class="text-gray-600">Vétérans (10 joueurs)</p>
+                                    <p class="text-sm text-red-600 font-medium">Conflits : 6 joueurs</p>
+                                </div>
+                            </div>
+                            
+                            <h4 class="text-lg font-semibold text-gray-800 mb-2">Format des Matchs</h4>
+                            <ul class="list-disc list-inside space-y-1 text-gray-700">
+                                <li><b>Poules :</b> 2 sets gagnants (Bo3)</li>
+                                <li><b>Tableau Consolante :</b> 2 sets gagnants (Bo3)</li>
+                                <li><b>Tableau Principal :</b> 3 sets gagnants (Bo5)</li>
+                                <li><b>Finales (Principal) :</b> 4 sets gagnants (Bo7)</li>
                             </ul>
                         </div>
-                        <div class="bg-blue-50 p-6 rounded-xl flex flex-col justify-center items-center">
-                             <h3 class="font-bold text-xl mb-3 text-blue-800 text-center">4 Tableaux du Jour</h3>
-                             <div class="chart-container">
-                                <canvas id="day1Chart"></canvas>
+                    </div>
+
+                </section>
+            </div>
+
+            <div id="jour2-content" class="hidden">
+                <section class="bg-white p-6 md:p-8 rounded-xl shadow-lg mb-8">
+                    <h2 class="text-2xl font-bold text-teal-700 mb-6">Jour 2 : Journée Conviviale</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 text-center md:text-left">
+                        <div class="bg-teal-50 p-4 rounded-lg">
+                            <div class="text-sm font-semibold text-teal-600 uppercase">Horaires</div>
+                            <div class="text-2xl font-bold text-gray-900">10h00 - 17h30</div>
+                        </div>
+                        <div class="bg-teal-50 p-4 rounded-lg">
+                            <div class="text-sm font-semibold text-teal-600 uppercase">Format Garanti</div>
+                            <div class="text-xl font-bold text-gray-900">Poules + Principal + Consolante</div>
+                        </div>
+                        <div class="bg-teal-50 p-4 rounded-lg">
+                            <div class="text-sm font-semibold text-teal-600 uppercase">Événements</div>
+                            <div class="text-2xl font-bold text-gray-900">2 Tournois Uniques</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4">Échéancier Détaillé</h3>
+                            <ol class="relative border-l border-gray-200">                  
+                                <li class="mb-10 ml-6">            
+                                    <span class="absolute flex items-center justify-center w-6 h-6 bg-teal-100 rounded-full -left-3 ring-8 ring-white">
+                                        ☕
+                                    </span>
+                                    <time class="block mb-1 text-sm font-normal leading-none text-gray-500">09:15 - 09:45</time>
+                                    <h4 class="text-lg font-semibold text-gray-900">Accueil & Café</h4>
+                                    <p class="text-base font-normal text-gray-600">Accueil des participants du jour.</p>
+                                </li>
+                                <li class="mb-10 ml-6">
+                                    <span class="absolute flex items-center justify-center w-6 h-6 bg-teal-100 rounded-full -left-3 ring-8 ring-white">
+                                        🏁
+                                    </span>
+                                    <time class="block mb-1 text-sm font-normal leading-none text-gray-500">10:00</time>
+                                    <h4 class="text-lg font-semibold text-gray-900">Lancement des 2 Tournois</h4>
+                                    <p class="text-base font-normal text-gray-600">Début des poules.</p>
+                                </li>
+                                <li class="mb-10 ml-6">
+                                    <span class="absolute flex items-center justify-center w-6 h-6 bg-yellow-100 rounded-full -left-3 ring-8 ring-white">
+                                        🍽️
+                                    </span>
+                                    <time class="block mb-1 text-sm font-normal leading-none text-gray-500">13:00 - 14:30</time>
+                                    <h4 class="text-lg font-semibold text-gray-900">Grande Pause Déjeuner</h4>
+                                    <p class="text-base font-normal text-gray-600">Pause conviviale, type barbecue.</p>
+                                </li>
+                                <li class="mb-10 ml-6">
+                                    <span class="absolute flex items-center justify-center w-6 h-6 bg-green-100 rounded-full -left-3 ring-8 ring-white">
+                                        🏆
+                                    </span>
+                                    <time class="block mb-1 text-sm font-normal leading-none text-gray-500">14:30</time>
+                                    <h4 class="text-lg font-semibold text-gray-900">Phases Finales</h4>
+                                    <p class="text-base font-normal text-gray-600">Lancement des tableaux Principaux & Consolantes.</p>
+                                </li>
+                                <li class="ml-6">
+                                    <span class="absolute flex items-center justify-center w-6 h-6 bg-green-100 rounded-full -left-3 ring-8 ring-white">
+                                        🏅
+                                    </span>
+                                    <time class="block mb-1 text-sm font-normal leading-none text-gray-500">17:00 - 17:30</time>
+                                    <h4 class="text-lg font-semibold text-gray-900">Finales & Pot de Clôture</h4>
+                                    <p class="text-base font-normal text-gray-600">Fin du tournoi.</p>
+                                </li>
+                            </ol>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-4">Tableaux du Jour</h3>
+                            <div class="space-y-4">
+                                <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                    <div class="font-semibold text-gray-800 text-lg">"Défi des Paires" (9 paires)</div>
+                                    <p class="text-gray-600">Format unique en 2 simples + 1 double, avec système de handicap pour niveler les forces.</p>
+                                </div>
+                                <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                    <div class="font-semibold text-gray-800 text-lg">La Marquisienne (24 inscrits)</div>
+                                    <p class="text-gray-600">Triathlon ludique : Tennis de Table, Fléchettes, et Pétanque. Le premier à 2 victoires gagne.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-
-                    <h3 class="font-bold text-2xl mb-6 text-blue-800">Échéancier Détaillé</h3>
-                    <div class="relative pl-8 border-l-2 border-blue-200">
-                        <!-- Timeline Items -->
-                        <div class="timeline-item mb-8 pl-4">
-                            <p class="font-bold text-lg text-blue-900">08h15 - 08h45</p>
-                            <p class="font-medium text-gray-700">Accueil & Pointage</p>
-                            <p class="text-sm text-gray-500">Tableaux -600 et Open</p>
-                        </div>
-                        <div class="timeline-item mb-8 pl-4">
-                            <p class="font-bold text-lg text-blue-900">09h00</p>
-                            <p class="font-medium text-gray-700">Début des Phases de Poules</p>
-                            <p class="text-sm text-gray-500">Lancement des premiers matchs pour les tableaux -600 et Open.</p>
-                        </div>
-                        <div class="timeline-item mb-8 pl-4">
-                            <p class="font-bold text-lg text-blue-900">11h00</p>
-                            <p class="font-medium text-gray-700">Accueil & Pointage</p>
-                            <p class="text-sm text-gray-500">Tableaux -1000 et Vétérans</p>
-                        </div>
-                        <div class="timeline-item mb-8 pl-4">
-                            <p class="font-bold text-lg text-red-700 bg-red-100 py-1 px-3 rounded-md inline-block">12h00 - 13h00 : Phase Critique</p>
-                            <p class="font-medium text-gray-700 mt-2">Bascule & Lancement des Poules</p>
-                            <p class="text-sm text-gray-500">Lancement des poules -1000 et Vétérans. Pas de pause collective, déjeuner en rotation.</p>
-                        </div>
-                        <div class="timeline-item mb-8 pl-4">
-                            <p class="font-bold text-lg text-blue-900">14h30 (environ)</p>
-                            <p class="font-medium text-gray-700">Début de Toutes les Phases Finales</p>
-                            <p class="text-sm text-gray-500">Lancement des tableaux principaux pour les 4 compétitions.</p>
-                        </div>
-                        <div class="timeline-item pl-4">
-                            <p class="font-bold text-lg text-blue-900">17h30 - 18h00</p>
-                            <p class="font-medium text-gray-700">Finales et Podiums</p>
-                            <p class="text-sm text-gray-500">La finale Open clôture la journée, suivie de la remise des récompenses.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Jour 2 Section -->
-            <section id="content-jour2" class="content-section">
-                 <div class="bg-white p-6 rounded-2xl shadow-lg">
-                    <h2 class="text-3xl font-bold text-center mb-2 text-green-900">Jour 2 : Journée Conviviale</h2>
-                    <p class="text-center text-gray-600 mb-6">Thème : Plaisir du jeu, Originalité, Convivialité</p>
-
-                    <div class="grid md:grid-cols-2 gap-6 mb-8">
-                        <div class="bg-green-50 p-6 rounded-xl">
-                            <h3 class="font-bold text-xl mb-3 text-green-800">Informations Clés</h3>
-                            <ul class="space-y-2 text-gray-700">
-                                <li class="flex items-start"><span class="font-bold w-32">Horaires:</span><span>09h00 - 17h30</span></li>
-                                <li class="flex items-start"><span class="font-bold w-32">Format:</span><span>Poules + Tableau Principal</span></li>
-                                <li class="flex items-start"><span class="font-bold w-32">Pause Déjeuner:</span><span class="font-bold text-green-700">13h00 - 14h30 (étendue)</span></li>
-                            </ul>
-                        </div>
-                        <div class="bg-green-50 p-6 rounded-xl flex flex-col justify-center items-center">
-                             <h3 class="font-bold text-xl mb-3 text-green-800 text-center">2 Épreuves du Jour</h3>
-                             <div class="chart-container">
-                                <canvas id="day2Chart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <h3 class="font-bold text-2xl mb-6 text-green-800">Échéancier Détaillé</h3>
-                    <div class="relative pl-8 border-l-2 border-green-200">
-                        <div class="timeline-item mb-8 pl-4" style="--timeline-dot-color: #166534;">
-                            <p class="font-bold text-lg text-green-900">08h15 - 08h45</p>
-                            <p class="font-medium text-gray-700">Accueil & Café de Bienvenue</p>
-                            <p class="text-sm text-gray-500">Accueil détendu et explication des règles du jour.</p>
-                        </div>
-                        <div class="timeline-item mb-8 pl-4" style="--timeline-dot-color: #166534;">
-                            <p class="font-bold text-lg text-green-900">09h00</p>
-                            <p class="font-medium text-gray-700">Lancement Simultané des Deux Tournois</p>
-                            <p class="text-sm text-gray-500">Début des poules du "Défi des Paires" et de "La Marquisienne".</p>
-                        </div>
-                        <div class="timeline-item mb-8 pl-4" style="--timeline-dot-color: #166534;">
-                            <p class="font-bold text-lg text-red-700 bg-red-100 py-1 px-3 rounded-md inline-block">12h00 - 13h30 : Grande Pause</p>
-                            <p class="font-medium text-gray-700 mt-2">Pause Déjeuner Conviviale</p>
-                            <p class="text-sm text-gray-500">Moment idéal pour un repas commun ou un barbecue.</p>
-                        </div>
-                         <div class="timeline-item mb-8 pl-4" style="--timeline-dot-color: #166534;">
-                            <p class="font-bold text-lg text-green-900">13h30</p>
-                            <p class="font-medium text-gray-700">Début des Phases Finales</p>
-                            <p class="text-sm text-gray-500">Lancement des tableaux principaux pour les deux compétitions.</p>
-                        </div>
-                        <div class="timeline-item mb-8 pl-4" style="--timeline-dot-color: #166534;">
-                            <p class="font-bold text-lg text-green-900">16h00</p>
-                            <p class="font-medium text-gray-700">Finales</p>
-                            <p class="text-sm text-gray-500">Les finales du "Défi des Paires" et de "La Marquisienne" se déroulent.</p>
-                        </div>
-                        <div class="timeline-item pl-4" style="--timeline-dot-color: #166534;">
-                            <p class="font-bold text-lg text-green-900">17h00</p>
-                            <p class="font-medium text-gray-700">Podiums de Clôture & Pot de l'Amitié</p>
-                            <p class="text-sm text-gray-500">Remise des récompenses et pot de clôture pour finir le week-end.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
+                </section>
+            </div>
         </main>
-
-        <footer class="text-center mt-8 text-sm text-gray-500">
-            <p>Ce planning est un guide. Sa réussite dépend du respect des horaires par les joueurs.</p>
-            <p>&copy; 2025 Organisation du Tournoi</p>
-        </footer>
-
     </div>
 
     <script>
         const btnJour1 = document.getElementById('btn-jour1');
         const btnJour2 = document.getElementById('btn-jour2');
-        const contentJour1 = document.getElementById('content-jour1');
-        const contentJour2 = document.getElementById('content-jour2');
+        const contentJour1 = document.getElementById('jour1-content');
+        const contentJour2 = document.getElementById('jour2-content');
 
         function showJour1() {
-            btnJour1.classList.add('active');
-            btnJour2.classList.remove('active');
-            contentJour1.classList.add('active');
-            contentJour2.classList.remove('active');
+            contentJour1.classList.remove('hidden');
+            contentJour2.classList.add('hidden');
+            btnJour1.classList.add('nav-btn-active');
+            btnJour1.classList.remove('nav-btn-inactive');
+            btnJour2.classList.add('nav-btn-inactive');
+            btnJour2.classList.remove('nav-btn-active');
         }
 
         function showJour2() {
-            btnJour2.classList.add('active');
-            btnJour1.classList.remove('active');
-            contentJour2.classList.add('active');
-            contentJour1.classList.remove('active');
+            contentJour1.classList.add('hidden');
+            contentJour2.classList.remove('hidden');
+            btnJour1.classList.add('nav-btn-inactive');
+            btnJour1.classList.remove('nav-btn-active');
+            btnJour2.classList.add('nav-btn-active');
+            btnJour2.classList.remove('nav-btn-inactive');
         }
 
         btnJour1.addEventListener('click', showJour1);
         btnJour2.addEventListener('click', showJour2);
-
-        function createChart(canvasId, labels, colors, hoverColors) {
-            const ctx = document.getElementById(canvasId).getContext('2d');
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: labels.map(() => 1),
-                        backgroundColor: colors,
-                        hoverBackgroundColor: hoverColors,
-                        borderColor: '#ffffff',
-                        borderWidth: 4,
-                        hoverOffset: 10
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '70%',
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 15,
-                                font: {
-                                    size: 14,
-                                    family: 'Inter',
-                                }
-                            }
-                        },
-                        tooltip: {
-                            enabled: false
-                        }
-                    }
-                }
-            });
-        }
-        
-        window.onload = function() {
-            createChart(
-                'day1Chart',
-                ['Open', '-600', '-1000', 'Vétérans'],
-                ['#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe'],
-                ['#2563eb', '#3b82f6', '#60a5fa', '#93c5fd']
-            );
-            
-            createChart(
-                'day2Chart',
-                ['Défi des Paires', 'La Marquisienne'],
-                ['#22c55e', '#86efac'],
-                ['#16a34a', '#4ade80']
-            );
-             showJour1();
-        };
     </script>
+
 </body>
 </html>
+
